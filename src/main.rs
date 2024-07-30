@@ -38,39 +38,30 @@ fn get_median_and_mode(list: &mut Vec<i8>) -> ListResult {
 
 // Convert strings to pig latin.
 fn convert_str(text: &str) -> String {
+    let vowels = "aeiouAEIOU";
     let mut result = String::new();
     for word in text.split_whitespace() {
-        let mut chars = word.chars();
-        let mut char_to_end = 'h';
-        let mut start_char: Option<char> = None;
-        if let Some(first_letter) = &chars.next() {
-            if first_letter != &'a'
-                && first_letter != &'e'
-                && first_letter != &'i'
-                && first_letter != &'o'
-                && first_letter != &'u'
-            {
-                char_to_end = *first_letter;
+        if let Some(first_char) = word.chars().next() {
+            if vowels.contains(first_char) {
+                result.push_str(&format!("{}-hay ", word));
             } else {
-                start_char = Some(*first_letter)
+                if let Some(pos) = word.chars().position(|c| vowels.contains(c)) {
+                    let (first, rest) = word.split_at(pos);
+                    result.push_str(&format!("{}-{}ay ", rest, first));
+                } else {
+                    result.push_str(&format!("{}-ay ", word));
+                }
             }
-        };
-        let corner = chars.as_str();
-        if start_char.is_some() {
-            result.push(start_char.unwrap())
         }
-        result.push_str(corner);
-        result.push('-');
-        result.push(char_to_end);
-        result.push_str("ay ");
     }
-    result
+
+    result.trim_end().to_string()
 }
 
 fn main() {
     let mut list = vec![3, 1, 5, 7, 2, 8, 4, 1, 0];
     let ListResult { median, mode } = get_median_and_mode(&mut list);
     println!("Median is {median}, Mode is {mode}");
-    let pig_latin = convert_str("hello apple");
+    let pig_latin = convert_str("hello apple chichi");
     println!("{:?}", pig_latin);
 }
